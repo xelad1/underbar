@@ -8,6 +8,7 @@ var _ = {};
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -196,6 +197,29 @@ var _ = {};
   //     return total + number;
   //   }, 0); // should be 6
   _.reduce = function(collection, iterator, accumulator) {
+
+    var total = 0;
+
+    for(var i = 0; i < collection.length; i ++) {
+      total += iterator(0, collection[i]);
+    }
+    if(accumulator === undefined) {
+      accumulator = collection[0];
+    }
+
+    return accumulator += total;
+  };
+
+  // Determine if the array or object contains a given value (using `===`).
+  _.contains = function(collection, target) {
+    // TIP: Many iteration problems can be most easily expressed in
+    // terms of reduce(). Here's a freebie to demonstrate!
+    return _.reduce(collection, function(wasFound, item) {
+      if (wasFound) {
+        return true;
+      }
+      return item === target;
+    }, false);
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -213,13 +237,50 @@ var _ = {};
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
-    // TIP: Try re-using reduce() here.
-  };
+    
+    var truthy = false;
+    if(iterator === undefined) {
+      return true;
+    }
 
+    for(var i = 0; i < collection.length; i ++) {
+
+      if(iterator(collection[i])) {
+        truthy = true;
+      } else {
+        return false;
+      }
+    }
+    
+    if(collection.length === 0) {
+      return true;
+    }
+
+    return truthy;
+  };
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
-    // TIP: There's a very clever way to re-use every() here.
+
+    var truthy = false;
+    var i;
+    var count = 0;
+
+     if(collection.length === 0) {
+      return false;
+    }
+
+    for (i = 0; i < collection.length; i ++) {
+
+      if(iterator !== undefined && iterator(collection[i])) {
+        return true;
+      }
+      if(collection[i] === true || typeof(collection[i]) === "string") { 
+        return true;
+      }
+    }
+
+    return truthy;
   };
 
 
@@ -242,12 +303,47 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+
+    var argumentLength = arguments.length;
+    var myKey;
+    
+    for(var i = 0; i < argumentLength; i ++) {
+
+      var myArgs = arguments[i];
+      
+      for(myKey in myArgs) {
+      obj[myKey] = myArgs[myKey];
+      }
+    }
+
+    return obj;
+
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
-  };
+
+    var argumentLength = arguments.length;
+    var myKey;
+    var i;
+    
+    for (i = 0; i < argumentLength; i ++) {
+      var myArgs = arguments[i];
+
+      
+      for(myKey in myArgs) {
+      if(obj[myKey] === myArgs[myKey]){
+        return obj;
+      } else {
+        if (obj[myKey] == null){
+          obj[myKey] = myArgs[myKey];
+        }
+      }
+      }
+    }
+    return obj;
+    };
 
 
   /**
@@ -288,6 +384,19 @@ var _ = {};
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+      var cache = {};
+
+
+    var memoize = function(key) {
+      var address = key;
+      if (cache[address] == null) {
+        cache[address] = func.apply(this, arguments);
+      }
+      return cache[address];
+    }
+
+    return memoize;
+
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -296,8 +405,16 @@ var _ = {};
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
-  };
+_.delay = function(func, wait) {
+
+    var newArgs = [];
+
+    for(var i = 2; i < arguments.length; i ++) {
+      newArgs.push(arguments[i]);
+    }
+
+    setTimeout(function() { func.apply(null, newArgs); }, wait);
+  }; //not outputting as an arg but rather as an array????
 
 
   /**
@@ -311,6 +428,19 @@ var _ = {};
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+
+    var lastIndex = array.length;
+    var finalArr = [];
+    var newArr = array.slice(0, lastIndex);
+
+    for(var i = 0; i < array.length; i ++) {
+      var randIndex = Math.floor(Math.random() * newArr.length);
+      finalArr.push(newArr[randIndex]);
+      newArr.splice(randIndex, 1);
+    }
+
+    return finalArr;
+ 
   };
 
 
